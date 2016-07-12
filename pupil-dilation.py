@@ -114,17 +114,7 @@ def trial(trialno):
     message.draw()
     fixation.draw()
     win.flip()
-    tracker.setDataFile(None)
-    tracker.startTracking()
-    core.wait(0.5)  # allow the tracker to gather some data
-    currentGaze = tracker.getCurrentGazeAverage()
-    currentValidity = tracker.getCurrentValidity()
-    while (abs(currentGaze[0]) > 0.1 and abs(currentGaze[1]) > 0.1 and
-           currentValidity[0] == 4 and currentValidity[1] == 4):
-        core.wait(0.05)  # wait 50ms
-        currentGaze = tracker.getCurrentGazeAverage()  # update gaze
-        currentValidity = tracker.getCurrentValidity()  # update validity
-    tracker.stopTracking()
+    tracker.waitForFixation(fixationPoint=fixation.pos)
 
     # calculate how much to wait before
     prewait = preflash + prejitter * np.random.rand()  # min wait plus jitter
