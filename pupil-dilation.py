@@ -11,7 +11,7 @@ import random
 import numpy as np
 import os
 import os.path
-import TobiiControllerP as tobiicontroller
+import tobiicontroller
 from datetime import datetime
 
 # Stimulus and Experiment Parameters
