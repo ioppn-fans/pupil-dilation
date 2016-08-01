@@ -37,14 +37,15 @@ dialog = gui.DlgFromDict(dictionary=sessionInfo,
 assert dialog.OK, "You cancelled the experiment during the dialog box."
 
 # Make a folder to store the data
-os.makedirs(os.path.join(os.getcwd(), 'data',
-                         sessionInfo['time'] + ' ' + sessionInfo['subject']))
+datadir = os.path.join(os.getcwd(), 'data',
+                       sessionInfo['time'] + ' ' + sessionInfo['subject'],
+                       '')
+os.makedirs(datadir)
 
 
 # Screen Parameters
 screenrate = 60.0  # screen rate in Hz
-
-debugging = False  # if you want a smaller window to still see code
+debugging = False  # set True if you want a smaller window to still see code
 
 # Set the screen parameters: (This is important!)
 screen = monitors.Monitor('tobiix300')
@@ -99,6 +100,9 @@ outport.setData(0)  # set all pins to low to start with
 
 # Define a trial function
 def trial(trialno):
+    # Set directory for data storage
+    tracker.setDataFile(datadir + 'trial %03d.csv' % (trialno))
+
     if event.getKeys(keyList=['escape']):
         raise KeyboardInterrupt("You interrupted the script manually.")
     # wait until the eyes are fixated and detected
@@ -113,11 +117,6 @@ def trial(trialno):
     prewait = preflash + prejitter * np.random.rand()  # min wait plus jitter
     prewait -= prewait % (1 / screenrate)  # trim time to match framerate
 
-    # Start tracking for real
-    tracker.setDataFile(os.path.join(os.getcwd(), 'data',
-                                     sessionInfo['time'] + ' ' +
-                                     sessionInfo['subject'],
-                                     'trial %03d.csv' % (trialno)))
     tracker.startTracking()
 
     # make dark and wait
