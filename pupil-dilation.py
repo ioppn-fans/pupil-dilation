@@ -11,7 +11,7 @@ import random
 import numpy as np
 import os
 import os.path
-import tobiicontroller
+from tobiicontroller import TobiiController as tobiicontroller
 from datetime import datetime
 
 # Stimulus and Experiment Parameters
@@ -37,9 +37,6 @@ dialog = gui.DlgFromDict(dictionary=sessionInfo,
 assert dialog.OK, "You cancelled the experiment during the dialog box."
 
 # Make a folder to store the data
-os.chdir(os.path.join('C:\\', 'Documents and Settings', 'k1513504',
-                      'My Documents', 'Dropbox', 'Documents', 'projects',
-                      'cancan', 'pupil-dilation'))
 os.makedirs(os.path.join(os.getcwd(), 'data',
                          sessionInfo['time'] + ' ' + sessionInfo['subject']))
 
@@ -74,30 +71,26 @@ fixation = visual.GratingStim(win, tex='sqr', mask='cross', sf=0, size=0.3,
 
 
 # Open Tobii and activate
+tracker = None
 message.text = "Configuring..."
 message.draw()
 win.flip()
-try:
-    print("Opening eye tracker connection...")
-    tracker = tobiicontroller.TobiiController(win)
-    tracker.waitForFindEyeTracker()  # this scans the network
-    tracker.activate(tobiiid)  # this opens the tobii connection
-    print("Confirming eyes are present...")
-    tracker.findEyes()  # this mirrors the eyes on the screen
-    print("Calibrating....")
-    calibrated = False
-    while not calibrated:
-        outcome = tracker.doCalibration()
-        if outcome is 'retry':
-            pass
-        elif outcome is 'abort':
-            raise KeyboardInterrupt("You interrupted the script.")
-        elif outcome is 'accept':
-            calibrated = True
-
-except:  # this gets triggered if there is a problem setting up the eye tracker
-    tracker.destroy()
-    win.close()
+print("Opening eye tracker connection...")
+tracker = tobiicontroller(win)
+tracker.waitForFindEyeTracker()  # this scans the network
+tracker.activate(tobiiid)  # this opens the tobii connection
+print("Confirming eyes are present...")
+tracker.findEyes()  # this mirrors the eyes on the screen
+print("Calibrating....")
+calibrated = False
+while not calibrated:
+    outcome = tracker.doCalibration()
+    if outcome is 'retry':
+        pass
+    elif outcome is 'abort':
+        raise KeyboardInterrupt("You interrupted the script.")
+    elif outcome is 'accept':
+        calibrated = True
 
 # Open the parallel port
 outport = parallel.ParallelPort()  # opens port at default address, LPT1
